@@ -27,7 +27,7 @@ module linearCardBoardMount(length, height, base_height, depth, cardPer_thicknes
     
     if(align == "nocenter" || align == "")
     {
-        difference(){
+        difference(){ 
         cube([depth ,length , height]);
         translate([(-cardPer_thickness/2)+width/2, -0.5, base_height])cube([cardPer_thickness , length+1, height+1]);
         }
