@@ -34,7 +34,7 @@ module linearCardBoardMount(length, height, base_height, depth, cardPer_thicknes
     }
 }
 
-module UShapeCardPer(height, width, depth, u_depth, mount_depth, cardPer_thickness, radius_outer, radius_inner)
+module UShapeCardPer(height, width, depth, u_depth, mount_depth, cardPer_thickness, radius_outer, radius_inner, backpart=false)
 {
     /*CardPer Window*//*
     radius_middle=(radius_outer+radius_inner)/2;
@@ -71,11 +71,21 @@ module UShapeCardPer(height, width, depth, u_depth, mount_depth, cardPer_thickne
         mount_pitch = u_depth/2-cardPer_thickness/2;
         translate([0,depth/2+u_depth/2+0.0001,mount_pitch])UShape(height, width-2*mount_pitch, depth, cardPer_thickness, radius_outer, radius_inner);
     }
+    if (backpart)
+    {
+        translate([0,depth+u_depth,0])rotate([0,0,180])difference()
+        {
+        //outer frame
+        UShape(height, width, u_depth, u_depth+mount_depth, radius_outer, radius_inner);
+        //cardper part
+        translate([0,0,u_depth])UShape(height, width-2*u_depth, cardPer_thickness, mount_depth*2, radius_inner, radius_inner/1.6);
+        }
+    }
 }
 
-$fn=30;
-//UShapeCardPer(height, width, depth, u_depth, mount_depth, cardPer_thickness, radius_outer, radius_inner)
-UShapeCardPer(20,20, 2, 1, 2, 0.5, 2, 2/1.62);
+//$fn=30;
+//UShapeCardPer(height, width, depth, u_depth, mount_depth, cardPer_thickness, radius_outer, radius_inner, backpart=false)
+//UShapeCardPer(20,20, 20, 1, 2, 0.5, 2, 2/1.62, true);
 //UShape(10, 10, 10, 2, 2, 2/1.62);
 module UShape(height, width, u_depth, u_width, radius_outer, radius_inner)
 {
