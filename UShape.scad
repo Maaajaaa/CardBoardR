@@ -21,6 +21,9 @@ horizontal_pillar_offset = 1;
 
 slide_in_width = 2;
 
+bevel_resolution = 5;
+bevel_size = 2;
+
 difference()
 {
   UShapeCardPer(height, width, depth, u_depth, mount_depth, cardPer_thickness,
@@ -38,13 +41,33 @@ difference()
       vertical_pillar_space = ((height-radius_outer-vertical_pillar_offset)
       -vertical_pillars*vertical_pillar_height)/vertical_pillars;
       first_vertical_pillar_height = radius_outer+vertical_pillar_offset;
-      cube_size = [width+1, depth - slide_in_width, vertical_pillar_space];
+
       for(i=[0:vertical_pillars-1])
       {
-          translate([-width/2-0.5,u_depth/2+slide_in_width/2, first_vertical_pillar_height
-            +i*vertical_pillar_space+i*vertical_pillar_height])
-            cube(cube_size);
+        cube_size = [width+1, depth - slide_in_width, vertical_pillar_space];
 
+        edge_tl = [ [cube_size[0]/2, cube_size[1], cube_size[2]], [1,0,0], 0];
+        normal_tl = [ cube_size[0],                    [1,1,1], 0];
+
+        edge_tr = [ [cube_size[0]/2, 0, cube_size[2]], [1,0,0], 0];
+        normal_tr = [ edge_tr[0],                    [0,-1,1], 0];
+
+        edge_bl = [ [cube_size[0]/2, cube_size[1],0], [1,0,0], 0];
+        normal_bl = [ edge_bl[0],                    [0,1,-1], 0];
+
+        edge_br = [ [cube_size[0]/2, 0, 0], [1,0,0], 0];
+        normal_br = [ edge_tr[0],                    [0,-1,-1], 0];
+
+        translate([-width/2-0.5,u_depth/2+slide_in_width/2, first_vertical_pillar_height
+        +i*vertical_pillar_space+i*vertical_pillar_height])difference()
+        {
+            cube(cube_size);
+            //Top-left, Top-right, Bottom-left, Bottom-right
+            bevel(edge_tl, normal_tl, cr=bevel_size, cres=bevel_resolution, l=cube_size[0]+2);
+            bevel(edge_tr, normal_tr, cr=bevel_size, cres=bevel_resolution, l=cube_size[0]+2);
+            bevel(edge_bl, normal_bl, cr=bevel_size, cres=bevel_resolution, l=cube_size[0]+2);
+            bevel(edge_br, normal_br, cr=bevel_size, cres=bevel_resolution, l=cube_size[0]+2);
+        }
       }
   }
   else
@@ -82,10 +105,10 @@ difference()
         {
             cube(cube_size);
             //Top-left, Top-right, Bottom-left, Bottom-right
-            bevel(edge_tl, normal_tl, cr = 2, cres=5, l=cube_size[2]+2);
-            bevel(edge_tr, normal_tr, cr = 2, cres=5, l=cube_size[2]+2);
-            bevel(edge_bl, normal_bl, cr = 2, cres=5, l=cube_size[2]+2);
-            bevel(edge_br, normal_br, cr = 2, cres=5, l=cube_size[2]+2);
+            bevel(edge_tl, normal_tl, cr=bevel_size, cres=bevel_resolution, l=cube_size[2]+2);
+            bevel(edge_tr, normal_tr, cr=bevel_size, cres=bevel_resolution, l=cube_size[2]+2);
+            bevel(edge_bl, normal_bl, cr=bevel_size, cres=bevel_resolution, l=cube_size[2]+2);
+            bevel(edge_br, normal_br, cr=bevel_size, cres=bevel_resolution, l=cube_size[2]+2);
         }
       }
     }
