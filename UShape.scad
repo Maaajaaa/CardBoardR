@@ -1,23 +1,25 @@
 include <CardBoardLibrary.scad>
 
-$fn=30;
-height = 20;
-width = 20;
-depth = 20;
-u_depth = 1;
+$fn=60;
+height = 25;
+width = 25;
+depth = 25;
+u_depth = 2;
 mount_depth = 2;
-cardPer_thickness = 0.5;
+cardPer_thickness = 0.9;
 radius_outer = 2;
 radius_inner = 2/1.62;
 backpart = true;
 
-vertical_pillars = 2;
-vertical_pillar_height = 2;
+vertical_pillars = 1;
+vertical_pillar_height = 3;
 vertical_pillar_offset = 1.5;
 
-horizontal_pillars = 4;
-horizontal_pillar_width = 2;
-horizontal_pillar_offset = 2;
+horizontal_pillars = 3;
+horizontal_pillar_width = 3;
+horizontal_pillar_offset = 1;
+
+slide_in_width = 2;
 
 difference()
 {
@@ -35,13 +37,12 @@ difference()
   {
       vertical_pillar_space = ((height-radius_outer-vertical_pillar_offset)
       -vertical_pillars*vertical_pillar_height)/vertical_pillars;
-      *echo (vertical_pillar_space);
       first_vertical_pillar_height = radius_outer+vertical_pillar_offset;
       for(i=[0:vertical_pillars-1])
       {
-          translate([-width/2-0.5,u_depth/2, first_vertical_pillar_height
+          translate([-width/2-0.5,u_depth/2+slide_in_width/2, first_vertical_pillar_height
             +i*vertical_pillar_space+i*vertical_pillar_height])
-            cube([width+1, depth, vertical_pillar_space]);
+            cube([width+1, depth - slide_in_width, vertical_pillar_space]);
 
       }
   }
@@ -57,14 +58,12 @@ difference()
       horizontal_pillar_cuts = horizontal_pillars - 1;
       horizontal_pillar_space = ((width-2*radius_outer-2*horizontal_pillar_offset)
       -horizontal_pillar_cuts*horizontal_pillar_width)/(horizontal_pillar_cuts);
-      echo (horizontal_pillar_space);
       first_horizontal_pillar_x = -(width/2) + horizontal_pillar_offset + radius_outer + horizontal_pillar_width/2;
-      echo (first_horizontal_pillar_x);
       for(i=[0:horizontal_pillar_cuts-1])
       {
           translate([first_horizontal_pillar_x +
-          i*horizontal_pillar_width+i*horizontal_pillar_space,u_depth/2,0])
-            cube([horizontal_pillar_space, depth, height]);
+          i*horizontal_pillar_width+i*horizontal_pillar_space,u_depth/2+slide_in_width/2,-0.5])
+            cube([horizontal_pillar_space, depth - slide_in_width, height+1]);
 
       }
     }
