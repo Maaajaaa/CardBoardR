@@ -1,6 +1,8 @@
 include <CardBoardLibrary.scad>
 use <obiscad/bevel.scad>
-$fn=20;
+pi = 3.141592653589793238;
+
+$fn=30;
 height = 25;
 width = 25;
 depth = 25;
@@ -27,6 +29,8 @@ slide_in_width = 2;
 
 bevel_resolution = 20;
 bevel_size = 2;
+
+part = "main";
 
 if(part == "main")
 {
@@ -120,6 +124,13 @@ if(part == "main")
 else
 {
   //svg for cutting cardboard
+  main_width = depth;
+  main_length = pi*(radius_inner + radius_outer)/2  +
+                2*(height - top_fix_length - radius_inner - u_depth) +
+                width-2*u_depth - 2* radius_outer;
+  square([main_width, main_length]);
+  echo(str("main_width = ", main_width));
+  echo(str("main_length = ", main_length));
 }
 
 //for(a=vertical_pillars) {echo(a);}
