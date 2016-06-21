@@ -69,7 +69,7 @@ module UShapeCardPer(height, width, depth, u_depth, mount_depth, cardPer_thickne
         translate([0,depth/2+u_depth/2+0.00001,0])UShape(height, width, depth, u_depth, radius_outer, radius_inner);
         //cardper part
         mount_pitch = u_depth/2-cardPer_thickness/2;
-        translate([0,depth/2+u_depth/2+0.0001,mount_pitch])UShape(height-top_fix_length, width-2*mount_pitch, depth, cardPer_thickness, radius_outer, radius_inner);
+        translate([0,depth/2+u_depth/2+0.0001,mount_pitch])UShape(height-mount_pitch-top_fix_length, width-2*mount_pitch, depth, cardPer_thickness, radius_outer, radius_inner);
     }
     if (backpart)
     {
