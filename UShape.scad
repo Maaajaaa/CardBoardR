@@ -10,31 +10,29 @@ cardPer_thickness = 0.9;
 radius_outer = 2;
 radius_inner = 2/1.62;
 backpart = true;
+closed_top_y = true;
+
+//new option for better continuing
+top_fix_length = 1;
 
 vertical_pillars = 1;
-vertical_pillar_height = 3;
+vertical_pillar_height = 2.5;
 vertical_pillar_offset = 1.5;
 
-horizontal_pillars = 3;
-horizontal_pillar_width = 3;
+horizontal_pillars = 2;
+horizontal_pillar_width = 2;
 horizontal_pillar_offset = 1;
 
 slide_in_width = 2;
 
-bevel_resolution = 5;
+bevel_resolution = 20;
 bevel_size = 2;
 
+//translate([0,height/2,u_depth/2])rotate([90,0,0])
 difference()
 {
-  UShapeCardPer(height, width, depth, u_depth, mount_depth, cardPer_thickness,
+  #UShapeCardPer(height, width, depth, u_depth, mount_depth, cardPer_thickness, top_fix_length,
     radius_outer, radius_inner, backpart);
-  //translate([-width/2-0.5,u_depth/2,radius_outer])cube([width+1, depth, height]);
-
-  //UShapeCardPer(20,20, 20, 1, 2, 0.5, 2, 2/1.62, true);
-
-  //from the UserManual of OpenSCAD
-  //function sumv(v,i,s=0) = (i==s ? v[i] : v[i] + sumv(v,i-1,s));
-  //echo("sum vec=", sumv(vertical_pillars,len(vertical_pillars)-1,0));
 
   if(vertical_pillars*vertical_pillar_height < height-radius_outer-vertical_pillar_offset)
   {
