@@ -34,60 +34,53 @@ module linearCardBoardMount(length, height, base_height, depth, cardPer_thicknes
     }
 }
 
-module UShapeCardPer(height, width, depth, u_depth, mount_depth, cardPer_thickness, top_fix_length, radius_outer, radius_inner, backpart=false)
+module UShapeCardPer(height, width, depth, u_depth, mount_depth, cardPer_thickness, top_fix_length, radius_outer, radius_inner, backpart=false, round_main_cardPer=false, frontback_full=false)
 {
-    /*CardPer Window*//*
     radius_middle=(radius_outer+radius_inner)/2;
-    radius_outerMiddle=(radius_outer+radius_middle)/2;
-    difference()
-    {
-        //outer part
-        UShape(height, width, depth, u_width, base_height, radius_outer, radius_inner);
-        //cardper part
-        translate([0,0,0])UShape(height+0.5, width-base_height, cardPer_thickness, width, base_height, radius_middle, radius_inner);
-    }
-    /*CardPer U-Slide
-    #translate([0,u_width/2,0])UShape(height, width, u_width/2, u_width/4-cardPer_thickness/2, base_height/2-cardPer_thickness/2, radius_outer, radius_middle);
-    translate([0,u_width/2,cardPer_thickness])
-    UShape(height-cardPer_thickness*2, width-u_width/2-cardPer_thickness, u_width/2, u_width/4-cardPer_thickness/2,
-    base_height/2+cardPer_thickness/2, radius_middle, radius_middle);*/
-
-    /*Window*/
-    radius_middle=(radius_outer+radius_inner)/2;
-    //inner part
+    //front part
     difference()
     {
         //outer frame
-        UShape(height, width, u_depth, u_depth+mount_depth, radius_outer, radius_inner);
+        UShape(height, width, u_depth, u_depth+mount_depth, radius_outer, radius_inner,true,frontback_full);
         //cardper part
-        translate([0,0,u_depth])UShape(height, width-2*u_depth, cardPer_thickness, mount_depth*2, radius_inner, radius_inner/1.6);
+        if(round_main_cardPer)
+          translate([0,0,u_depth])UShape(height-top_fix_length-u_depth, width-2*u_depth, cardPer_thickness, mount_depth*2, radius_inner, radius_inner/1.6);
+        else
+          translate([-width/2+u_depth,-cardPer_thickness/2,u_depth])cube([width-2*u_depth, cardPer_thickness, height-top_fix_length-u_depth]);
     }
-
+    //middle part
     difference()
     {
         //outer frame
         translate([0,depth/2+u_depth/2+0.00001,0])UShape(height, width, depth, u_depth, radius_outer, radius_inner);
         //cardper part
         mount_pitch = u_depth/2-cardPer_thickness/2;
-        translate([0,depth/2+u_depth/2+0.0001,mount_pitch])UShape(height-mount_pitch-top_fix_length, width-2*mount_pitch, depth, cardPer_thickness, radius_outer, radius_inner);
+        if(round_main_cardPer)
+          translate([0,depth/2+u_depth/2+0.0001,mount_pitch])UShape(height-mount_pitch-top_fix_length, width-2*mount_pitch, depth, cardPer_thickness, radius_outer, radius_inner);
+        else
+        {
+          translate([-width/2+u_depth/2-cardPer_thickness/2, u_depth/2, mount_pitch+radius_outer])cube([cardPer_thickness,depth,height-radius_outer-mount_pitch-top_fix_length]);
+          translate([width/2-u_depth/2-cardPer_thickness/2, u_depth/2, mount_pitch+radius_outer])cube([cardPer_thickness,depth,height-radius_outer-mount_pitch-top_fix_length]);
+          translate([-width/2+radius_outer, u_depth/2, u_depth/2-cardPer_thickness/2])cube([width-2*radius_outer,depth,cardPer_thickness]);
+        }
     }
+    //backpart
     if (backpart)
     {
         translate([0,depth+u_depth,0])rotate([0,0,180])difference()
         {
         //outer frame
-        UShape(height, width, u_depth, u_depth+mount_depth, radius_outer, radius_inner);
+        UShape(height, width, u_depth, u_depth+mount_depth, radius_outer, radius_inner,true,frontback_full);
         //cardper part
-        translate([0,0,u_depth])UShape(height, width-2*u_depth, cardPer_thickness, mount_depth*2, radius_inner, radius_inner/1.6);
+        if(round_main_cardPer)
+          translate([0,0,u_depth])UShape(height-top_fix_length-u_depth, width-2*u_depth, cardPer_thickness, mount_depth*2, radius_inner, radius_inner/1.6);
+        else
+          translate([-width/2+u_depth,-cardPer_thickness/2,u_depth])cube([width-2*u_depth, cardPer_thickness, height-top_fix_length-u_depth]);
         }
     }
 }
 
-//$fn=30;
-//UShapeCardPer(height, width, depth, u_depth, mount_depth, cardPer_thickness, radius_outer, radius_inner, backpart=false)
-//UShapeCardPer(20,20, 20, 1, 2, 0.5, 2, 2/1.62, true);
-//UShape(10, 10, 10, 2, 2, 2/1.62);
-module UShape(height, width, u_depth, u_width, radius_outer, radius_inner)
+module UShape(height, width, u_depth, u_width, radius_outer, radius_inner, round=true, inner_part = true)
 {
     difference()
     {
@@ -95,13 +88,22 @@ module UShape(height, width, u_depth, u_width, radius_outer, radius_inner)
         minkowski()
         {
             translate([-width/2+radius_outer,-u_depth/2,radius_outer])cube([width-radius_outer*2,u_depth-0.00001,height]);
-            rotate([90,0,0])cylinder(0.00001,r=radius_outer);
+            if(round)
+              rotate([90,0,0])cylinder(0.00001,r=radius_outer);
+            else
+              cube([radius_outer*2,0.00001,radius_outer*2],center=true);
         }
         //inner part
-        translate([0,0,u_width])minkowski()
+        if(inner_part)
         {
-            translate([(width-2*u_width)/-2+radius_inner,-u_depth/2+0.5,radius_inner])cube([width-u_width*2-radius_inner*2,u_depth,height*1.5]);
-            rotate([90,0,0])cylinder(1,r=radius_inner);
+          translate([0,0,u_width])minkowski()
+          {
+              translate([(width-2*u_width)/-2+radius_inner,-u_depth/2+0.5,radius_inner])cube([width-u_width*2-radius_inner*2,u_depth,height*1.5]);
+              if(round)
+                rotate([90,0,0])cylinder(1,r=radius_inner);
+              else
+                cube([radius_outer*2,0.00001,0.00001],center=true);
+          }
         }
         //cut of the too long top at height
         translate([-width/2-.1,-u_depth/2-.1,height])cube([width+.2,u_depth+.2,height]);

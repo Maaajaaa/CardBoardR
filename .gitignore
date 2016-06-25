@@ -1,0 +1,7 @@
+#ignore gcode files
+*.gcode
+
+#ignore tests
+Tests/*
+#ignore ~ files
+*~
