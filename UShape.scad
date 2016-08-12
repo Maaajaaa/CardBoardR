@@ -5,8 +5,9 @@ pi = 3.141592653589793238;
 $fn=4;
 height = 25;
 width = 25;
-depth = 25;
+totalDepth = 25;
 u_depth = 2;
+depth = totalDepth - 2*u_depth;
 mount_depth = 2;
 cardPer_thickness = 0.9;
 radius_outer = 2;
@@ -37,6 +38,7 @@ difference()
     UShapeCardPer(height, width, depth, u_depth, mount_depth, cardPer_thickness, top_fix_length,
     radius_outer, radius_inner, backpart);
 
+  //side pillars and bevels
   if(leftright_pillars*leftright_pillar_height < height-radius_outer-mount_depth)
   {
       leftright_pillar_space = ((height-radius_outer-mount_depth-top_fix_length)
@@ -96,6 +98,7 @@ difference()
   else if(leftright_pillars > 0)
       echo("<b>ERROR</b> too many or too high left / right pillars");
 
+  //base pillars and bevels
   if(base_pillars*base_pillar_width < height-radius_outer*2-mount_depth*2)
   {
     if(base_pillars == 1)
@@ -140,6 +143,7 @@ difference()
   else
       echo("<b>ERROR</b> too many or too wide base pillars");
 
+  //front and back pillars and bevels
   if(frontback_pillars > 0 && frontback_pillars*frontback_pillar_height < height-radius_outer*2-mount_depth*2)
   {
       frontback_pillar_cuts = frontback_pillars;
@@ -178,6 +182,13 @@ difference()
     else if(frontback_pillars > 0)
       echo("<b>ERROR</b> too many or too wide front / back pillars");
 }
+
+//print required paper sizes
+echo("You'll need two Cardboards in the size of: (WxH) ", width-2*u_depth, "x",  height-top_fix_length-u_depth, "(for the front and the back)");
+echo("You'll need two more Cardboards sized: (WxH) ", depth, "x", height-radius_outer-u_depth/2-cardPer_thickness/2-top_fix_length, "(for the sides)" );
+echo("You'll also need one more Cardboard in the following dimensions: (WxH)", width-2*u_depth, "x", depth, "for the base" );
+//echo(str("Variable = ", x));
+//[cardPer_thickness,depth,height-radius_outer-mount_pitch-top_fix_length]
 
 /*main_width = depth;
 main_length = pi*(radius_inner + radius_outer)/2  +

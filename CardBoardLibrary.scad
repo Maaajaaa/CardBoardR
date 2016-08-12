@@ -46,7 +46,7 @@ module UShapeCardPer(height, width, depth, u_depth, mount_depth, cardPer_thickne
         if(round_main_cardPer)
           translate([0,0,u_depth])UShape(height-top_fix_length-u_depth, width-2*u_depth, cardPer_thickness, mount_depth*2, radius_inner, radius_inner/1.6);
         else
-          translate([-width/2+radius_outer,0,u_depth])cube([width-2*u_depth, cardPer_thickness, height-top_fix_length-u_depth]);
+          translate([-width/2+radius_outer,-cardPer_thickness/2,u_depth])cube([width-2*u_depth, cardPer_thickness, height-top_fix_length-u_depth]);
     }
     //middle part
     difference()
@@ -75,7 +75,7 @@ module UShapeCardPer(height, width, depth, u_depth, mount_depth, cardPer_thickne
         if(round_main_cardPer)
           translate([0,0,u_depth])UShape(height-top_fix_length-u_depth, width-2*u_depth, cardPer_thickness, mount_depth*2, radius_inner, radius_inner/1.6);
         else
-          translate([0,0,u_depth])UShape(height-top_fix_length-u_depth, width-2*u_depth, cardPer_thickness, mount_depth*2, radius_inner, radius_inner/1.6,false);
+          translate([-width/2+radius_outer,-cardPer_thickness/2,u_depth])cube([width-2*u_depth, cardPer_thickness, height-top_fix_length-u_depth]);
         }
     }
 }
