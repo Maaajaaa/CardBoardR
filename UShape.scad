@@ -14,23 +14,26 @@ pillars = [[0,0,2], [3,3,2]];
 bevel_resolution = 0;
 bevel_size = 2;
 
-ReadyToUseUShape(dimensions, cardPer, pillars, bevel_size, bevel_resolution, 4);
+//sides to use (see CardBoardLibrary.scad for details)
+cardPerSides = [true,true,true,true,true];
 
-module ReadyToUseUShape(dimensions, cardPer, pillars, bevel_size, bevel_resolution, corner_resolution)
+ReadyToUseUShape(dimensions, cardPer, pillars, bevel_size, bevel_resolution, 4, cardPerSides);
+
+module ReadyToUseUShape(dimensions, cardPer, pillars, bevel_size, bevel_resolution, corner_resolution, cardPerSides = [true,true,true,true,true])
 {
   $fn=corner_resolution;
   depth = dimensions[2] - 2*dimensions[3];
-  difference()
+  translate([0,dimensions[3]/2,0])difference()
   {
     if(pillars[0][1] == 0)
       UShapeCardPer(dimensions[0], dimensions[1], depth, dimensions[3], cardPer[1], cardPer[0], cardPer[2],
-      dimensions[4], dimensions[5], true, false, true);
+      dimensions[4], dimensions[5], true, false, cardPerSides);
     else
       UShapeCardPer(dimensions[0], dimensions[1], depth, dimensions[3], cardPer[1], cardPer[0], cardPer[2],
       dimensions[4], dimensions[5], true);
 
     //side pillars and bevels
-    if(pillars[0][0]*pillars[1][0] < dimensions[0]-dimensions[4]-cardPer[1])
+    if(pillars[0][0]*pillars[1][0] < dimensions[0]-dimensions[4]-cardPer[1] && cardPerSides[1] && cardPerSides[3])
     {
         leftright_pillar_space = ((dimensions[0]-dimensions[4]-cardPer[1]-cardPer[2])
         -pillars[0][0]*pillars[1][0])/pillars[0][0];
@@ -90,7 +93,7 @@ module ReadyToUseUShape(dimensions, cardPer, pillars, bevel_size, bevel_resoluti
         echo("<b>ERROR</b> too many or too high left / right pillars");
 
     //base pillars and bevels
-    if(pillars[0][2]*pillars[1][2] < dimensions[0]-dimensions[4]*2-cardPer[1]*2)
+    if(pillars[0][2]*pillars[1][2] < dimensions[0]-dimensions[4]*2-cardPer[1]*2 && cardPerSides[0])
     {
       if(pillars[0][2] == 1)
       ;
