@@ -15,6 +15,7 @@ bevel_resolution = 0;
 bevel_size = 2;
 
 //sides to use (see CardBoardLibrary.scad for details)
+///TODO: IMPLEMENT DIFFERENCE BETWEEN LEFT AND RIGHT
 cardPerSides = [true,true,true,true,true];
 
 ReadyToUseUShape(dimensions, cardPer, pillars, bevel_size, bevel_resolution, 4, cardPerSides);
