@@ -2,7 +2,7 @@ include <CardBoardLibrary.scad>
 use <obiscad/bevel.scad>
 pi = 3.141592653589793238;
 
-$fn=30;
+$fn=4;
 height = 25;
 width = 25;
 depth = 25;
@@ -25,7 +25,7 @@ base_pillar_width = 2;
 frontback_pillars = 0;
 frontback_pillar_height = 3;
 
-bevel_resolution = 20;
+bevel_resolution = 0;
 bevel_size = 2;
 
 difference()
