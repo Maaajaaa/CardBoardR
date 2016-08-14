@@ -34,7 +34,7 @@ module linearCardBoardMount(length, height, base_height, depth, cardPer_thicknes
     }
 }
 
-module UShapeCardPer(height, width, depth, u_depth, mount_depth, cardPer_thickness, top_fix_length, radius_outer, radius_inner, backpart=false, round_main_cardPer=false, cardPerSides = [true,true,true,true,true])
+module UShapeCardPer(height, width, depth, u_depth, mount_depth, cardPer_thickness, top_fix_length, radius_outer, radius_inner, backpart=false, round_main_cardPer=false, full_sides=false, cardPerSides = [true,true,true,true,true])
 {
   /* numbering of the inserts (optional for disabling some of them, see cardPerSides)
          2
@@ -50,7 +50,7 @@ module UShapeCardPer(height, width, depth, u_depth, mount_depth, cardPer_thickne
     difference()
     {
         //outer frame
-        UShape(height, width, u_depth, u_depth+mount_depth, radius_outer, radius_inner,true, cardPerSides[4]);
+        UShape(height, width, u_depth, u_depth+mount_depth, radius_outer, radius_inner,true, full_sides);
         //cardper part
         if(round_main_cardPer)
         {
@@ -81,7 +81,7 @@ module UShapeCardPer(height, width, depth, u_depth, mount_depth, cardPer_thickne
         translate([0,depth+u_depth,0])rotate([0,0,180])difference()
         {
         //outer frame
-        UShape(height, width, u_depth, u_depth+mount_depth, radius_outer, radius_inner,true, cardPerSides[2]);
+        UShape(height, width, u_depth, u_depth+mount_depth, radius_outer, radius_inner,true, full_sides);
         //cardper part
         if(round_main_cardPer)
         {

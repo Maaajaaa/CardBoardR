@@ -1,14 +1,23 @@
 include <CardBoardLibrary.scad>
 use <obiscad/bevel.scad>
 
-//height, width, depth, u_depth, radius_outer, radius_inner
-dimensions = [25, 25, 25, 2, 2, 2/1.62];
+/*SLICING NOTES:
+  -disable thin wall detection
+  -set XY-compensation to 0, at least for this part (the UShape)
+  -check the extrusionWidth variable (leave in the sclicer, adapt below)
+*/
+extrusionWidth = 0.45;    //get this from your slicing settings
+paperMountingShells = 1;  //the ammount of shells that hold the cardboard or paper wall
+
 //thickness of paper/cardboard, mount_depth, top_fix_lenght
 cardPer = [0.9, 2, 0.5];
+//height, width, depth, u_depth, radius_outer, radius_inner
+dimensions = [50, 50, 50, cardPer[0]+paperMountingShells*2*extrusionWidth, 2, 2/1.62];
 
+echo(str("U_DEPTH = ", dimensions[3]));
 //left 'n right, front/back, base (at least 2 required)
 //first ammount of pillars, then width (order on line above)
-pillars = [[0,0,2], [3,3,2]];
+pillars = [[0,1,2], [3,5,2]];
 
 //resoultion and size of the butresses on the base and the sides
 bevel_resolution = 0;
@@ -26,12 +35,12 @@ module ReadyToUseUShape(dimensions, cardPer, pillars, bevel_size, bevel_resoluti
   depth = dimensions[2] - 2*dimensions[3];
   translate([0,dimensions[3]/2,0])difference()
   {
-    if(pillars[0][1] == 0)
+    if(pillars[0][1] == 0 )
       UShapeCardPer(dimensions[0], dimensions[1], depth, dimensions[3], cardPer[1], cardPer[0], cardPer[2],
-      dimensions[4], dimensions[5], true, false, cardPerSides);
+      dimensions[4], dimensions[5], true, false, false, cardPerSides);
     else
       UShapeCardPer(dimensions[0], dimensions[1], depth, dimensions[3], cardPer[1], cardPer[0], cardPer[2],
-      dimensions[4], dimensions[5], true);
+      dimensions[4], dimensions[5], true, false, false);
 
     //side pillars and bevels
     if(pillars[0][0]*pillars[1][0] < dimensions[0]-dimensions[4]-cardPer[1] && cardPerSides[1] && cardPerSides[3])
@@ -148,24 +157,24 @@ module ReadyToUseUShape(dimensions, cardPer, pillars, bevel_size, bevel_resoluti
 
         cube_size = [dimensions[1]-2*dimensions[3]-2*cardPer[1], depth+dimensions[3]*2+0.002, frontback_pillar_space];
 
-        edge_tl = [ [0, cube_size[0]-dimensions[3], cube_size[2]], [0,1,0], 0];
+        edge_tl = [ [0, cube_size[1]/2+dimensions[3], cube_size[2]], [0,1,0], 0];
         normal_tl = [ cube_size[0],                    [-1,0,1], 0];
 
-        edge_tr = [ [cube_size[0], cube_size[0]-dimensions[3], cube_size[2]], [0,1,0], 0];
+        edge_tr = [ [cube_size[0], cube_size[1]/2+dimensions[3], cube_size[2]], [0,1,0], 0];
         normal_tr = [ cube_size[0],                    [1,0,1], 0];
 
-        edge_bl = [ [0, cube_size[0]-dimensions[3], 0], [0,1,0], 0];
+        edge_bl = [ [0, cube_size[1]/2+dimensions[3], 0], [0,1,0], 0];
         normal_bl = [ edge_bl[0],                    [-1,0,-1], 0];
 
-        edge_br = [ [cube_size[0], cube_size[0]-dimensions[3], 0], [0,1,0], 0];
+        edge_br = [ [cube_size[0], cube_size[1]/2+dimensions[3], 0], [0,1,0], 0];
         normal_br = [ edge_bl[0],                    [1,0,-1], 0];
 
         for(i=[0:pillars[0][1]-1])
         {
-          translate([-dimensions[1]/2+dimensions[3]+cardPer[1],-dimensions[3]/2-0.001, first_leftRightPillars
+          translate([-dimensions[1]/2+dimensions[3]+cardPer[1],-dimensions[3]/2-0.001-dimensions[3], first_leftRightPillars
           +i*frontback_pillar_space+i*pillars[1][1]])difference()
           {
-              cube(cube_size);
+              translate([0,dimensions[3]-cube_size[1]/2,0])cube([cube_size[0],cube_size[1]*2, cube_size[2]]);
               //Top-left, Top-right, Bottom-left, Bottom-right
               bevel(edge_tl, normal_tl, cr=bevel_size, cres=bevel_resolution, l=cube_size[1]+2);
               bevel(edge_tr, normal_tr, cr=bevel_size, cres=bevel_resolution, l=cube_size[1]+2);

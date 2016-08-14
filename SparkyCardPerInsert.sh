@@ -17,6 +17,6 @@ else
 fi
 echo -n "height before the closing: " 
 read height
-awk '/Z'$height'/{print"G0 X0 Y190\nM300\nM0"}1' $1 > tmp && mv tmp $1
+awk '/Z'$height'/{print"G0 X0 Y190\nM300\nM0\nG28 X Y"}1' $1 > tmp && mv tmp $1
 
 
