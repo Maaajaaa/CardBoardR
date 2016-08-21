@@ -9,15 +9,15 @@ use <obiscad/bevel.scad>
 extrusionWidth = 0.45;    //get this from your slicing settings
 paperMountingShells = 1;  //the ammount of shells that hold the cardboard or paper wall
 
-//thickness of paper/cardboard, mount_depth, top_fix_lenght
+//thickness of paper/cardboard, mount_depth, top_fix_depth
 cardPer = [0.9, 2, 0.5];
 //height, width, depth, u_depth, radius_outer, radius_inner
 dimensions = [50, 50, 50, cardPer[0]+paperMountingShells*2*extrusionWidth, 2, 2/1.62];
 
-echo(str("U_DEPTH = ", dimensions[3]));
+//echo(str("U_DEPTH = ", dimensions[3]));
 //left 'n right, front/back, base (at least 2 required)
-//first ammount of pillars, then width (order on line above)
-pillars = [[0,1,2], [3,5,2]];
+//first ammount of pillars, then width (order on line above) of the horizontal ones then again the same for the vertical ones
+pillars = [[0,0,0], [3,5,2], [0,0,0], [3,0,0]];
 
 //resoultion and size of the butresses on the base and the sides
 bevel_resolution = 0;
@@ -31,164 +31,87 @@ ReadyToUseUShape(dimensions, cardPer, pillars, bevel_size, bevel_resolution, 4, 
 
 module ReadyToUseUShape(dimensions, cardPer, pillars, bevel_size, bevel_resolution, corner_resolution, cardPerSides = [true,true,true,true,true])
 {
+  height = dimensions[0];
+  width = dimensions[1];
+  u_depth = dimensions[3];
+  radius_outer = dimensions[4];
+  toplessHeight = height + 1;
+
   $fn=corner_resolution;
-  depth = dimensions[2] - 2*dimensions[3];
-  translate([0,dimensions[3]/2,0])difference()
+  depth = dimensions[2] - 2*u_depth;
+  translate([0,u_depth/2,0])difference()
   {
     if(pillars[0][1] == 0 )
-      UShapeCardPer(dimensions[0], dimensions[1], depth, dimensions[3], cardPer[1], cardPer[0], cardPer[2],
-      dimensions[4], dimensions[5], true, false, false, cardPerSides);
+      UShapeCardPer(height, width, depth, u_depth, cardPer[1], cardPer[0], cardPer[2],
+      radius_outer, dimensions[5], true, false, false, cardPerSides);
     else
-      UShapeCardPer(dimensions[0], dimensions[1], depth, dimensions[3], cardPer[1], cardPer[0], cardPer[2],
-      dimensions[4], dimensions[5], true, false, false);
+      UShapeCardPer(height, width, depth, u_depth, cardPer[1], cardPer[0], cardPer[2],
+      radius_outer, dimensions[5], true, false, false);
 
-    //side pillars and bevels
-    if(pillars[0][0]*pillars[1][0] < dimensions[0]-dimensions[4]-cardPer[1] && cardPerSides[1] && cardPerSides[3])
+    horizontalPillarsHeight = height-u_depth-cardPer[2]-cardPer[1]*2;
+    verticalPillarsWidth = depth-cardPer[1]*2-u_depth*2;
+
+    //SIDE pillars and bevels
+    if(pillars[0][0]*pillars[1][0] <= horizontalPillarsHeight && //horizontal pillars are OK
+      pillars[2][0]*pillars[3][0] <= verticalPillarsWidth  &&   //vertical pillars are OK
+      cardPerSides[1] && cardPerSides[3])
     {
-        leftright_pillar_space = ((dimensions[0]-dimensions[4]-cardPer[1]-cardPer[2])
-        -pillars[0][0]*pillars[1][0])/pillars[0][0];
-        first_frontBackPillar = dimensions[4]+cardPer[1];
-
-
-        cube_size = [dimensions[1]+1, depth - cardPer[1], leftright_pillar_space];
-
-        edge_tl = [ [cube_size[0]/2, cube_size[1], cube_size[2]], [1,0,0], 0];
-        normal_tl = [ cube_size[0],                    [1,1,1], 0];
-
-        edge_tr = [ [cube_size[0]/2, 0, cube_size[2]], [1,0,0], 0];
-        normal_tr = [ edge_tr[0],                    [0,-1,1], 0];
-
-        edge_bl = [ [cube_size[0]/2, cube_size[1],0], [1,0,0], 0];
-        normal_bl = [ edge_bl[0],                    [0,1,-1], 0];
-
-        edge_br = [ [cube_size[0]/2, 0, 0], [1,0,0], 0];
-        normal_br = [ edge_tr[0],                    [0,-1,-1], 0];
-
-        if(pillars[0][0] == 0)
-        {
-          cube_size = [dimensions[1]+1, depth - cardPer[1]*2, dimensions[0]+1];
-
-          edge_bl = [ [cube_size[0]/2, cube_size[1],0], [1,0,0], 0];
-          normal_bl = [ edge_bl[0],                    [0,1,-1], 0];
-
-          edge_br = [ [cube_size[0]/2, 0, 0], [1,0,0], 0];
-          normal_br = [ edge_tr[0],                    [0,-1,-1], 0];
-
-          translate([-dimensions[1]/2-0.5,dimensions[3]/2+cardPer[1], dimensions[4]+cardPer[1]])difference()
-          {
-              cube(cube_size);
-              //Bottom-left, Bottom-right
-              bevel(edge_bl, normal_bl, cr=bevel_size, cres=bevel_resolution, l=cube_size[0]+2);
-              bevel(edge_br, normal_br, cr=bevel_size, cres=bevel_resolution, l=cube_size[0]+2);
-          }
-        }
-        else
-        {
-          for(i=[0:pillars[0][0]-1])
-          {
-            translate([-dimensions[1]/2-0.5,dimensions[3]/2+cardPer[1], first_frontBackPillar
-            +i*leftright_pillar_space+i*pillars[1][0]])difference()
-            {
-                cube(cube_size);
-                //Top-left, Top-right, Bottom-left, Bottom-right
-                bevel(edge_tl, normal_tl, cr=bevel_size, cres=bevel_resolution, l=cube_size[0]+2);
-                bevel(edge_tr, normal_tr, cr=bevel_size, cres=bevel_resolution, l=cube_size[0]+2);
-                bevel(edge_bl, normal_bl, cr=bevel_size, cres=bevel_resolution, l=cube_size[0]+2);
-                bevel(edge_br, normal_br, cr=bevel_size, cres=bevel_resolution, l=cube_size[0]+2);
-            }
-          }
-        }
+      CutCube = [width+1, depth - cardPer[1]*2, horizontalPillarsHeight];
+      translate([CutCube[0]/2,u_depth/2+cardPer[1], u_depth + cardPer[1]])rotate([0,0,90])
+      if(pillars[0][0] == 0 && pillars[2][0] == 0)
+        spaceBetweenPilarsCutter([CutCube[1],CutCube[0],toplessHeight], [pillars[0][0], pillars[1][0]], [pillars[2][0], pillars[3][0]], [bevel_size,bevel_resolution]);
+      else
+        spaceBetweenPilarsCutter([CutCube[1],CutCube[0],CutCube[2]], [pillars[0][0], pillars[1][0]], [pillars[2][0], pillars[3][0]], [bevel_size,bevel_resolution]);
     }
-    else if(pillars[0][0] > 0)
+    else if(pillars[0][0] > 0 || pillars[2][0] > 0)
         echo("<b>ERROR</b> too many or too high left / right pillars");
 
-    //base pillars and bevels
-    if(pillars[0][2]*pillars[1][2] < dimensions[0]-dimensions[4]*2-cardPer[1]*2 && cardPerSides[0])
+    //BASE pillars and bevels
+    if(pillars[0][2]*pillars[1][2] < height-radius_outer*2-cardPer[1]*2 && cardPerSides[0])
     {
-      if(pillars[0][2] == 1)
-      ;
-      else
-      {
-        base_pillar_cuts = pillars[0][2] - 1;
-        base_pillar_space = ((dimensions[1]-2*dimensions[4]-2*cardPer[1])
-        -base_pillar_cuts*pillars[1][2])/(base_pillar_cuts);
-        first_base_pillar_x = -(dimensions[1]/2) + cardPer[1] + dimensions[4] + pillars[1][2]/2;
-
-        cube_size = [base_pillar_space, depth - cardPer[1]*2, dimensions[3]+1];
-
-        edge_tl = [ [0, cube_size[1], cube_size[2]/2], [0,0,1], 0];
-        normal_tl = [ edge_tl[0],                    [-1,1,0], 0];
-
-        edge_tr = [ [cube_size[0], cube_size[1], cube_size[2]/2], [0,0,1], 0];
-        normal_tr = [ edge_tr[0],                    [1,1,0], 0];
-
-        edge_bl = [ [0, 0, cube_size[2]/2], [0,0,1], 0];
-        normal_bl = [ edge_bl[0],                    [-1,-1,0], 0];
-
-        edge_br = [ [cube_size[0], 0, cube_size[2]/2], [0,0,1], 0];
-        normal_br = [ edge_tr[0],                    [1,-1,0], 0];
-
-        for(i=[0:base_pillar_cuts-1])
-        {
-          translate([first_base_pillar_x +
-          i*pillars[1][2]+i*base_pillar_space,
-          dimensions[3]/2+cardPer[1],-0.5])difference()
-          {
-              cube(cube_size);
-              //Top-left, Top-right, Bottom-left, Bottom-right
-              bevel(edge_tl, normal_tl, cr=bevel_size, cres=bevel_resolution, l=cube_size[2]+2);
-              bevel(edge_tr, normal_tr, cr=bevel_size, cres=bevel_resolution, l=cube_size[2]+2);
-              bevel(edge_bl, normal_bl, cr=bevel_size, cres=bevel_resolution, l=cube_size[2]+2);
-              bevel(edge_br, normal_br, cr=bevel_size, cres=bevel_resolution, l=cube_size[2]+2);
-          }
-        }
-      }
+      first_base_pillar_x = (width/2) - 2*cardPer[1] - radius_outer;
+      CutCube = [width-2*radius_outer-4*cardPer[1], depth - cardPer[1]*2, u_depth+2];
+      translate([-first_base_pillar_x,u_depth/2+cardPer[1], -1])rotate([90,0,90])
+        spaceBetweenPilarsCutter([CutCube[1],CutCube[2],CutCube[0]], [pillars[0][2], pillars[1][2]], [pillars[2][2], pillars[3][2]], [bevel_size,bevel_resolution]);
     }
     else
         echo("<b>ERROR</b> too many or too wide base pillars");
 
-    //front and back pillars and bevels
-    if(pillars[0][1] > 0 && pillars[0][1]*pillars[1][1] < dimensions[0]-dimensions[4]*2-cardPer[1]*2)
+    //FRONT and BACK pillars and bevels
+    if(pillars[0][1]*pillars[1][1] < height-radius_outer*2-cardPer[1]*2)
     {
-        frontback_pillar_cuts = pillars[0][1];
-        frontback_pillar_space = ((dimensions[0]-dimensions[3]-cardPer[1]*2-cardPer[2])
-        -(frontback_pillar_cuts-1)*pillars[1][1])/(frontback_pillar_cuts);
-        first_leftRightPillars = dimensions[3] + cardPer[1];
-
-        cube_size = [dimensions[1]-2*dimensions[3]-2*cardPer[1], depth+dimensions[3]*2+0.002, frontback_pillar_space];
-
-        edge_tl = [ [0, cube_size[1]/2+dimensions[3], cube_size[2]], [0,1,0], 0];
-        normal_tl = [ cube_size[0],                    [-1,0,1], 0];
-
-        edge_tr = [ [cube_size[0], cube_size[1]/2+dimensions[3], cube_size[2]], [0,1,0], 0];
-        normal_tr = [ cube_size[0],                    [1,0,1], 0];
-
-        edge_bl = [ [0, cube_size[1]/2+dimensions[3], 0], [0,1,0], 0];
-        normal_bl = [ edge_bl[0],                    [-1,0,-1], 0];
-
-        edge_br = [ [cube_size[0], cube_size[1]/2+dimensions[3], 0], [0,1,0], 0];
-        normal_br = [ edge_bl[0],                    [1,0,-1], 0];
-
-        for(i=[0:pillars[0][1]-1])
-        {
-          translate([-dimensions[1]/2+dimensions[3]+cardPer[1],-dimensions[3]/2-0.001-dimensions[3], first_leftRightPillars
-          +i*frontback_pillar_space+i*pillars[1][1]])difference()
-          {
-              translate([0,dimensions[3]-cube_size[1]/2,0])cube([cube_size[0],cube_size[1]*2, cube_size[2]]);
-              //Top-left, Top-right, Bottom-left, Bottom-right
-              bevel(edge_tl, normal_tl, cr=bevel_size, cres=bevel_resolution, l=cube_size[1]+2);
-              bevel(edge_tr, normal_tr, cr=bevel_size, cres=bevel_resolution, l=cube_size[1]+2);
-              bevel(edge_bl, normal_bl, cr=bevel_size, cres=bevel_resolution, l=cube_size[1]+2);
-              bevel(edge_br, normal_br, cr=bevel_size, cres=bevel_resolution, l=cube_size[1]+2);
-          }
-        }
+        CutCube = [width - cardPer[1]*2 - u_depth*2, depth+2+2*u_depth, horizontalPillarsHeight];
+        translate([-CutCube[0]/2,-1, u_depth + cardPer[1]])
+        if(pillars[0][1] == 0 && pillars[2][1] == 0)
+          spaceBetweenPilarsCutter([CutCube[0],CutCube[1],toplessHeight], [pillars[0][0], pillars[1][0]], [pillars[2][0], pillars[3][0]], [bevel_size,bevel_resolution]);
+        else
+          spaceBetweenPilarsCutter([CutCube[0],CutCube[1],CutCube[2]], [pillars[0][0], pillars[1][0]], [pillars[2][0], pillars[3][0]], [bevel_size,bevel_resolution]);
       }
       else if(pillars[0][1] > 0)
         echo("<b>ERROR</b> too many or too wide front / back pillars");
   }
 
   //print required paper sizes
-  echo("You'll need two Cardboards in the size of: (WxH) ", dimensions[1]-2*dimensions[3], "x",  dimensions[0]-cardPer[2]-dimensions[3], "(for the front and the back)");
-  echo("You'll need two more Cardboards sized: (WxH) ", depth, "x", dimensions[0]-dimensions[4]-dimensions[3]/2-cardPer[0]/2-cardPer[2], "(for the sides)" );
-  echo("You'll also need one more Cardboard in the following dimensions: (WxH)", dimensions[1]-2*dimensions[3], "x", depth, "for the base" );
+  echo("You'll need two Cardboards in the size of: (WxH) ", width-2*u_depth, "x",  height-cardPer[2]-u_depth, "(for the front and the back)");
+  echo("You'll need two more Cardboards sized: (WxH) ", depth, "x", height-radius_outer-u_depth/2-cardPer[0]/2-cardPer[2], "(for the sides)" );
+  echo("You'll also need one more Cardboard in the following dimensions: (WxH)", width-2*u_depth, "x", depth, "for the base" );
 }
+
+//space[x,y,z]
+//horizontalPillars[amount, width]
+//verticalPillars[amount, width]
+//bevels[size,resoultion]
+module spaceBetweenPilarsCutter(space, horizontalPillars, verticalPillars, bevels)
+{
+  cutoffWidth = (space[0] - verticalPillars[0] * verticalPillars[1])/(verticalPillars[0]+1);
+  cutoffHeight = (space[2] - horizontalPillars[0] * horizontalPillars[1])/(horizontalPillars[0]+1);
+  for(row = [0:horizontalPillars[0]])
+  {
+    for(collumn = [0:verticalPillars[0]])
+    {
+      translate([collumn*verticalPillars[1]+collumn*cutoffWidth, 0,
+        row*horizontalPillars[1]+row*cutoffHeight])bevelCube([cutoffWidth, space[1], cutoffHeight], [1,3,9,11], bevels[0], bevels[1]);
+    }
+  }
+}
+//spaceBetweenPilarsCutter([10,10,10], [1, 2], [0, 2], [0.5,0]);
