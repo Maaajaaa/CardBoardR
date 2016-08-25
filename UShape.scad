@@ -1,5 +1,5 @@
 include <CardBoardLibrary.scad>
-use <obiscad/bevel.scad>
+use <obiscad/obiscad/bevel.scad>
 
 /*SLICING NOTES:
   -disable thin wall detection
@@ -67,7 +67,7 @@ module ReadyToUseUShape(dimensions, cardPer, pillars, bevel_size, bevel_resoluti
         echo("<b>ERROR</b> too many or too high left / right pillars");
 
     //BASE pillars and bevels
-    if(pillars[0][2]*pillars[1][2] < height-radius_outer*2-cardPer[1]*2 && cardPerSides[0])
+    if(pillars[0][2]*pillars[1][2] < width-radius_outer*2-cardPer[1]*2 && cardPerSides[0])
     {
       first_base_pillar_x = (width/2) - 2*cardPer[1] - radius_outer;
       CutCube = [width-2*radius_outer-4*cardPer[1], depth - cardPer[1]*2, u_depth+2];
@@ -83,9 +83,9 @@ module ReadyToUseUShape(dimensions, cardPer, pillars, bevel_size, bevel_resoluti
         CutCube = [width - cardPer[1]*2 - u_depth*2, depth+2+2*u_depth, horizontalPillarsHeight];
         translate([-CutCube[0]/2,-1, u_depth + cardPer[1]])
         if(pillars[0][1] == 0 && pillars[2][1] == 0)
-          spaceBetweenPilarsCutter([CutCube[0],CutCube[1],toplessHeight], [pillars[0][0], pillars[1][0]], [pillars[2][0], pillars[3][0]], [bevel_size,bevel_resolution]);
+          spaceBetweenPilarsCutter([CutCube[0],CutCube[1],toplessHeight], [pillars[0][1], pillars[1][1]], [pillars[2][1], pillars[3][1]], [bevel_size,bevel_resolution]);
         else
-          spaceBetweenPilarsCutter([CutCube[0],CutCube[1],CutCube[2]], [pillars[0][0], pillars[1][0]], [pillars[2][0], pillars[3][0]], [bevel_size,bevel_resolution]);
+          spaceBetweenPilarsCutter([CutCube[0],CutCube[1],CutCube[2]], [pillars[0][1], pillars[1][1]], [pillars[2][1], pillars[3][1]], [bevel_size,bevel_resolution]);
       }
       else if(pillars[0][1] > 0)
         echo("<b>ERROR</b> too many or too wide front / back pillars");
