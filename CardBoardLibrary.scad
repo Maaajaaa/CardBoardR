@@ -123,3 +123,17 @@ module UShape(height, width, u_depth, u_width, radius_outer, radius_inner, round
 
     }
 }
+
+module pillarCutter(space, horizontalPillars, verticalPillars, bevels)
+{
+  cutoffWidth = (space[0] - verticalPillars[0] * verticalPillars[1])/(verticalPillars[0]+1);
+  cutoffHeight = (space[2] - horizontalPillars[0] * horizontalPillars[1])/(horizontalPillars[0]+1);
+  for(row = [0:horizontalPillars[0]])
+  {
+    for(collumn = [0:verticalPillars[0]])
+    {
+      translate([collumn*verticalPillars[1]+collumn*cutoffWidth, 0,
+        row*horizontalPillars[1]+row*cutoffHeight])bevelCube([cutoffWidth, space[1], cutoffHeight], [1,3,9,11], bevels[0], bevels[1]);
+    }
+  }
+}

@@ -59,9 +59,9 @@ module ReadyToUseUShape(dimensions, cardPer, pillars, bevel_size, bevel_resoluti
       CutCube = [width+1, depth - cardPer[1]*2, horizontalPillarsHeight];
       translate([CutCube[0]/2,u_depth/2+cardPer[1], u_depth + cardPer[1]])rotate([0,0,90])
       if(pillars[0][0] == 0 && pillars[2][0] == 0)
-        spaceBetweenPilarsCutter([CutCube[1],CutCube[0],toplessHeight], [pillars[0][0], pillars[1][0]], [pillars[2][0], pillars[3][0]], [bevel_size,bevel_resolution]);
+        pillarCutter([CutCube[1],CutCube[0],toplessHeight], [pillars[0][0], pillars[1][0]], [pillars[2][0], pillars[3][0]], [bevel_size,bevel_resolution]);
       else
-        spaceBetweenPilarsCutter([CutCube[1],CutCube[0],CutCube[2]], [pillars[0][0], pillars[1][0]], [pillars[2][0], pillars[3][0]], [bevel_size,bevel_resolution]);
+        pillarCutter([CutCube[1],CutCube[0],CutCube[2]], [pillars[0][0], pillars[1][0]], [pillars[2][0], pillars[3][0]], [bevel_size,bevel_resolution]);
     }
     else if(pillars[0][0] > 0 || pillars[2][0] > 0)
         echo("<b>ERROR</b> too many or too high left / right pillars");
@@ -72,7 +72,7 @@ module ReadyToUseUShape(dimensions, cardPer, pillars, bevel_size, bevel_resoluti
       first_base_pillar_x = (width/2) - 2*cardPer[1] - radius_outer;
       CutCube = [width-2*radius_outer-4*cardPer[1], depth - cardPer[1]*2, u_depth+2];
       translate([-first_base_pillar_x,u_depth/2+cardPer[1], -1])rotate([90,0,90])
-        spaceBetweenPilarsCutter([CutCube[1],CutCube[2],CutCube[0]], [pillars[0][2], pillars[1][2]], [pillars[2][2], pillars[3][2]], [bevel_size,bevel_resolution]);
+        pillarCutter([CutCube[1],CutCube[2],CutCube[0]], [pillars[0][2], pillars[1][2]], [pillars[2][2], pillars[3][2]], [bevel_size,bevel_resolution]);
     }
     else
         echo("<b>ERROR</b> too many or too wide base pillars");
@@ -83,9 +83,9 @@ module ReadyToUseUShape(dimensions, cardPer, pillars, bevel_size, bevel_resoluti
         CutCube = [width - cardPer[1]*2 - u_depth*2, depth+2+2*u_depth, horizontalPillarsHeight];
         translate([-CutCube[0]/2,-1, u_depth + cardPer[1]])
         if(pillars[0][1] == 0 && pillars[2][1] == 0)
-          spaceBetweenPilarsCutter([CutCube[0],CutCube[1],toplessHeight], [pillars[0][1], pillars[1][1]], [pillars[2][1], pillars[3][1]], [bevel_size,bevel_resolution]);
+          pillarCutter([CutCube[0],CutCube[1],toplessHeight], [pillars[0][1], pillars[1][1]], [pillars[2][1], pillars[3][1]], [bevel_size,bevel_resolution]);
         else
-          spaceBetweenPilarsCutter([CutCube[0],CutCube[1],CutCube[2]], [pillars[0][1], pillars[1][1]], [pillars[2][1], pillars[3][1]], [bevel_size,bevel_resolution]);
+          pillarCutter([CutCube[0],CutCube[1],CutCube[2]], [pillars[0][1], pillars[1][1]], [pillars[2][1], pillars[3][1]], [bevel_size,bevel_resolution]);
       }
       else if(pillars[0][1] > 0)
         echo("<b>ERROR</b> too many or too wide front / back pillars");
@@ -101,17 +101,3 @@ module ReadyToUseUShape(dimensions, cardPer, pillars, bevel_size, bevel_resoluti
 //horizontalPillars[amount, width]
 //verticalPillars[amount, width]
 //bevels[size,resoultion]
-module spaceBetweenPilarsCutter(space, horizontalPillars, verticalPillars, bevels)
-{
-  cutoffWidth = (space[0] - verticalPillars[0] * verticalPillars[1])/(verticalPillars[0]+1);
-  cutoffHeight = (space[2] - horizontalPillars[0] * horizontalPillars[1])/(horizontalPillars[0]+1);
-  for(row = [0:horizontalPillars[0]])
-  {
-    for(collumn = [0:verticalPillars[0]])
-    {
-      translate([collumn*verticalPillars[1]+collumn*cutoffWidth, 0,
-        row*horizontalPillars[1]+row*cutoffHeight])bevelCube([cutoffWidth, space[1], cutoffHeight], [1,3,9,11], bevels[0], bevels[1]);
-    }
-  }
-}
-//spaceBetweenPilarsCutter([10,10,10], [1, 2], [0, 2], [0.5,0]);
