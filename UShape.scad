@@ -27,7 +27,7 @@ bevel_size = 2;
 ///TODO: IMPLEMENT DIFFERENCE BETWEEN LEFT AND RIGHT
 cardPerSides = [true,true,true,true,true];
 
-ReadyToUseUShape(dimensions, cardPer, pillars, bevel_size, bevel_resolution, 4, cardPerSides);
+//ReadyToUseUShape(dimensions, cardPer, pillars, bevel_size, bevel_resolution, 4, cardPerSides);
 
 module ReadyToUseUShape(dimensions, cardPer, pillars, bevel_size, bevel_resolution, corner_resolution, cardPerSides = [true,true,true,true,true])
 {

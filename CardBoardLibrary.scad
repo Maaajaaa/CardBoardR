@@ -93,6 +93,27 @@ module UShapeCardPer(height, width, depth, u_depth, mount_depth, cardPer_thickne
     }
 }
 
+/*
+height: height of the wall (Z)
+width: width of the wall (Y)
+u_depth: depth of the shells
+cardPer_thickness: thickness of the cardboard / paper(not recommended)
+mount_depth: how deep the cardPer is supposed to be mounted
+top_fix_depth: same as mount_depth, just on top, standart value 1, is optional
+*/
+///TODO;Centering
+module CardPerWall(height, width, u_depth, mount_depth, cardPer_thickness, center = false, top_fix_depth = 1)
+{
+  translate([-u_depth,0,0])
+  difference() {
+    cube([u_depth, width, height]);
+    //CardPer space
+    translate([u_depth/2 - cardPer_thickness/2, u_depth, u_depth])cube([cardPer_thickness, width-2*u_depth, height-u_depth-top_fix_depth]);
+    translate([-1,u_depth+mount_depth, u_depth+mount_depth])cube([u_depth*2+ cardPer_thickness+2, width-2*mount_depth-2*u_depth,height+1]);
+  }
+}
+CardPerWall(10, 20, 1.8, 2, 0.9);
+
 module UShape(height, width, u_depth, u_width, radius_outer, radius_inner, round=true, inner_part = true)
 {
     difference()
